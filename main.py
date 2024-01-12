@@ -3,6 +3,13 @@ import dearpygui.dearpygui as dpg
 from bob import Bob
 
 bob = None
+transcript = None  # This will be the widget ID for the transcript display
+
+
+def transcript_callback(text):
+    if transcript:
+        current_text = dpg.get_value(transcript)
+        dpg.set_value(transcript, current_text + '\n' + text)
 
 
 def start_listening_callback(sender, app_data):
@@ -21,8 +28,10 @@ def send_command_callback(sender, app_data, user_data):
 
 
 def setup_bob_gui():
+    global transcript
+
     with dpg.window(label="Bob - Your AI Assistant"):
-        dpg.add_text("This is where Bob's responses will go")
+        dpg.add_text("This is where Bob's transcriptions will appear")
         dpg.add_button(label="Start Listening", callback=start_listening_callback)
         dpg.add_button(label="Stop Listening", callback=stop_listening_callback)
         command_input = dpg.add_input_text(label="Command")
@@ -38,8 +47,10 @@ if __name__ == '__main__':
 
     setup_bob_gui()
 
-    bob = Bob()
+    bob = Bob(transcript_callback)
 
     dpg.show_viewport()
     dpg.start_dearpygui()
     dpg.destroy_context()
+
+# file: main.py

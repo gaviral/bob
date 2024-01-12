@@ -1,4 +1,5 @@
 import logging
+from threading import Event
 
 import speech_recognition as sr
 
@@ -8,40 +9,42 @@ logger = logging.getLogger('Bob')
 
 
 class Bob:
-    def __init__(self):
+    def __init__(self, transcript_callback):
         self.recognizer = sr.Recognizer()
         self.microphone = sr.Microphone()
-        self.listening = False
+        self.stop_listening = None
+        self.transcript_callback = transcript_callback  # Callback method to update the GUI with the transcription
+        self.stop_event = Event()
 
     def start_listening(self):
-        self.listening = True
+        self.stop_event.clear()
+        self.stop_listening = self.recognizer.listen_in_background(self.microphone, self.recognize_speech)
         logger.debug("Bob started listening.")
-        # This will be an asynchronous call in the actual implementation
-        self.listen()
 
     def stop_listening(self):
-        self.listening = False
+        if self.stop_listening:
+            self.stop_listening(wait_for_stop=False)
+            self.stop_event.set()
         logger.debug("Bob stopped listening.")
 
-    def listen(self):
-        if self.listening:
-            try:
-                with self.microphone as source:
-                    logger.debug("Adjusting for ambient noise, please wait...")
-                    self.recognizer.adjust_for_ambient_noise(source)
-                    logger.debug("Listening for speech...")
-                    audio = self.recognizer.listen(source)
+    def recognize_speech(self, recognizer, audio):
+        if self.stop_event.is_set():
+            return  # Stop processing if stop_event is set
 
-                logger.debug("Recognizing speech...")
-                text = self.recognizer.recognize_google(audio)
-                self.process_transcription(text)
-            except sr.UnknownValueError:
-                logger.error("Bob could not understand the audio")
-            except sr.RequestError as e:
-                logger.error(f"Request failed; {e}")
+        try:
+            logger.debug("Recognizing speech...")
+            text = recognizer.recognize_google(audio)
+            self.process_transcription(text)
+        except sr.UnknownValueError:
+            logger.error("Bob could not understand the audio")
+        except sr.RequestError as e:
+            logger.error(f"Request failed; {e}")
 
     def process_transcription(self, text):
         logger.info(f"Bob heard: {text}")
+        self.transcript_callback(text)
 
     def process_command(self, command):
         logger.info(f"Processing command: {command}")  # Additional command processing logic would go here
+
+# file: bob.py
