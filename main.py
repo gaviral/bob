@@ -8,7 +8,7 @@ from six.moves import queue
 RATE = 16000
 CHUNK = int(RATE / 10)  # 100ms
 
-os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = 'gcp-bob-727844038724.json'
+os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = 'private/key/gcp-bob-727844038724.json'
 
 
 class MicrophoneStream:
@@ -74,7 +74,7 @@ def main():
     client = speech.SpeechClient()
 
     config = speech.RecognitionConfig(encoding=speech.RecognitionConfig.AudioEncoding.LINEAR16, sample_rate_hertz=RATE,
-        language_code="en-US", max_alternatives=1, )
+        language_code="en-US", max_alternatives=1, enable_automatic_punctuation=True)
 
     streaming_config = speech.StreamingRecognitionConfig(config=config, interim_results=True)
 
