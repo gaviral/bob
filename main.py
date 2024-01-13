@@ -83,7 +83,7 @@ def listen_print_loop(responses):
 
         # Update the DearPyGUI transcript box with the latest transcript.
         if dpg.is_dearpygui_running():
-            dpg.configure_item("Transcript Text", default_value=transcript)
+            dpg.add_text(transcript, parent="Chat", before="mic_button")
 
 
 def start_speech_recognition():
@@ -92,7 +92,7 @@ def start_speech_recognition():
     is_listening = True
     client = speech.SpeechClient()
     config = speech.RecognitionConfig(encoding=speech.RecognitionConfig.AudioEncoding.LINEAR16, sample_rate_hertz=RATE,
-        language_code="en-US", max_alternatives=1, enable_automatic_punctuation=True)
+                                      language_code="en-US", max_alternatives=1, enable_automatic_punctuation=True)
     streaming_config = speech.StreamingRecognitionConfig(config=config, interim_results=True)
 
     with MicrophoneStream(RATE, CHUNK) as stream:
@@ -109,13 +109,9 @@ def microphone_toggle():
     global is_listening, mic_stream
     if not is_listening:
         is_listening = True
-        # Change button color to red
-        dpg.bind_item_theme("Toggle Microphone", "Red Button Theme")
         threading.Thread(target=start_speech_recognition, daemon=True).start()
     else:
         is_listening = False
-        # Change button color to green
-        dpg.bind_item_theme("Toggle Microphone", "Green Button Theme")
         if mic_stream is not None:
             mic_stream.closed = True
 
@@ -123,23 +119,35 @@ def microphone_toggle():
 def build_gui():
     dpg.create_context()
 
-    # Define button themes
-    with dpg.theme() as red_button_theme:
+    mic_on_status = False
+
+    # Define themes
+    with dpg.theme() as red_theme:
         with dpg.theme_component(dpg.mvButton):
-            dpg.add_theme_color(dpg.mvThemeCol_Button, [255, 0, 0])
+            dpg.add_theme_color(dpg.mvThemeCol_Button, (255, 0, 0, 255))  # Red color
 
-    with dpg.theme() as green_button_theme:
+    with dpg.theme() as green_theme:
         with dpg.theme_component(dpg.mvButton):
-            dpg.add_theme_color(dpg.mvThemeCol_Button, [0, 255, 0])
+            dpg.add_theme_color(dpg.mvThemeCol_Button, (0, 255, 0, 255))  # Green color
 
-    with dpg.window(label="Transcript", autosize=True):
-        dpg.add_text("", tag="Transcript Text")
-        with dpg.group(horizontal=True):
-            dpg.add_button(label="Start Microphone", callback=microphone_toggle, tag="Toggle Microphone")
+    # toggle_mic callback
+    def toggle_mic(sender, app_data, user_data):
+        nonlocal mic_on_status
+        mic_on_status = not mic_on_status
+        microphone_toggle()
 
-    dpg.bind_item_theme("Toggle Microphone", "Green Button Theme")
+        # Bind theme based on mic status
+        if mic_on_status:
+            dpg.bind_item_theme(sender, green_theme)
+        else:
+            dpg.bind_item_theme(sender, red_theme)
 
-    dpg.create_viewport(title='Real-time Speech Recognition', width=800, height=600, resizable=True)
+    # Window 1
+    with dpg.window(label="Chat", pos=(700, 425), width=320, height=800):
+        button = dpg.add_button(label="Toggle Microphone", tag="mic_button", callback=toggle_mic)
+        dpg.bind_item_theme(button, red_theme)  # Initial theme
+
+    dpg.create_viewport(title='Bob', width=960, height=1080)
     dpg.setup_dearpygui()
     dpg.show_viewport()
     dpg.start_dearpygui()
