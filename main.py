@@ -57,17 +57,76 @@ class MicrophoneStream:
             yield b''.join(data)
 
 
+# def listen_print_loop(responses):
+#     """Iterates through server responses and prints them."""
+#     for response in responses:
+#         if not response.results:
+#             continue
+#         result = response.results[0]
+#         if not result.alternatives:
+#             continue
+#         # The `-` is known to indicate that the recognizer is currently
+#         # predicting the rest of the sentence.
+#         print(f"A: {result.alternatives[0].transcript}")
+
+# def listen_print_loop(responses):
+#     """Iterates through server responses and prints them."""
+#     num_chars_printed = 0
+#     for response in responses:
+#         if not response.results:
+#             continue
+#
+#         result = response.results[0]
+#         if not result.alternatives:
+#             continue
+#
+#         transcript = result.alternatives[0].transcript
+#
+#         # Check if this is a final result or an interim result.
+#         if not result.is_final:
+#             # If interim result, print the new part of the transcript.
+#             new_chars = transcript[num_chars_printed:]
+#             print(new_chars, end='', flush=True)
+#             num_chars_printed = len(transcript)
+#
+#         else:
+#             # If final result, print the entire transcript and reset counter.
+#             print(transcript)
+#             num_chars_printed = 0
+
 def listen_print_loop(responses):
-    """Iterates through server responses and prints them."""
     for response in responses:
         if not response.results:
             continue
+
         result = response.results[0]
         if not result.alternatives:
             continue
-        # The `-` is known to indicate that the recognizer is currently
-        # predicting the rest of the sentence.
-        print(f"Transcript: {result.alternatives[0].transcript}")
+
+        if result.is_final:
+            print(f"A: {result.alternatives[0].transcript}")
+
+
+# def listen_print_loop(responses):
+#     num_chars_printed = 0
+#     for response in responses:
+#         if not response.results:
+#             continue
+#
+#         result = response.results[0]
+#         if not result.alternatives:
+#             continue
+#
+#         transcript = result.alternatives[0].transcript
+#
+#         if not result.is_final:
+#             new_chars = transcript[num_chars_printed:]
+#             print(new_chars, end='', flush=True)
+#             num_chars_printed = len(transcript)
+#         else:
+#             print(transcript + '\r', end='', flush=True)
+#             num_chars_printed = 0
+
 
 
 def main():
