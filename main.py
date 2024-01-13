@@ -1,14 +1,22 @@
 import os
+import threading
 
+import dearpygui.dearpygui as dpg
 import pyaudio
 from google.cloud import speech
 from six.moves import queue
+
+# Initialize Google Cloud credentials
+os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = os.getenv('GOOGLE_APPLICATION_CREDENTIALS')
 
 # Audio recording parameters
 RATE = 16000
 CHUNK = int(RATE / 10)  # 100ms
 
-os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = os.getenv('GOOGLE_APPLICATION_CREDENTIALS')
+# Shared state between threads
+is_listening = False
+transcript = ""
+mic_stream = None
 
 
 class MicrophoneStream:
@@ -23,7 +31,8 @@ class MicrophoneStream:
     def __enter__(self):
         self._audio_interface = pyaudio.PyAudio()
         self._audio_stream = self._audio_interface.open(format=pyaudio.paInt16, channels=1, rate=self._rate, input=True,
-            frames_per_buffer=self._chunk, stream_callback=self._fill_buffer, )
+                                                        frames_per_buffer=self._chunk,
+                                                        stream_callback=self._fill_buffer)
         self.closed = False
         return self
 
@@ -45,7 +54,7 @@ class MicrophoneStream:
             if chunk is None:
                 return
             data = [chunk]
-            # Now consume whatever other data's still buffered.
+
             while True:
                 try:
                     chunk = self._buff.get(block=False)
@@ -54,47 +63,13 @@ class MicrophoneStream:
                     data.append(chunk)
                 except queue.Empty:
                     break
+
             yield b''.join(data)
 
 
-# def listen_print_loop(responses):
-#     """Iterates through server responses and prints them."""
-#     for response in responses:
-#         if not response.results:
-#             continue
-#         result = response.results[0]
-#         if not result.alternatives:
-#             continue
-#         # The `-` is known to indicate that the recognizer is currently
-#         # predicting the rest of the sentence.
-#         print(f"A: {result.alternatives[0].transcript}")
-
-# def listen_print_loop(responses):
-#     """Iterates through server responses and prints them."""
-#     num_chars_printed = 0
-#     for response in responses:
-#         if not response.results:
-#             continue
-#
-#         result = response.results[0]
-#         if not result.alternatives:
-#             continue
-#
-#         transcript = result.alternatives[0].transcript
-#
-#         # Check if this is a final result or an interim result.
-#         if not result.is_final:
-#             # If interim result, print the new part of the transcript.
-#             new_chars = transcript[num_chars_printed:]
-#             print(new_chars, end='', flush=True)
-#             num_chars_printed = len(transcript)
-#
-#         else:
-#             # If final result, print the entire transcript and reset counter.
-#             print(transcript)
-#             num_chars_printed = 0
-
 def listen_print_loop(responses):
+    """Iterates through server responses and prints them to the text widget."""
+    global transcript
     for response in responses:
         if not response.results:
             continue
@@ -103,48 +78,76 @@ def listen_print_loop(responses):
         if not result.alternatives:
             continue
 
-        if result.is_final:
-            print(f"A: {result.alternatives[0].transcript}")
+        # Update the transcript variable with the latest result.
+        transcript = result.alternatives[0].transcript.rstrip() + ('' if result.is_final else '...')
+
+        # Update the DearPyGUI transcript box with the latest transcript.
+        if dpg.is_dearpygui_running():
+            dpg.configure_item("Transcript Text", default_value=transcript)
 
 
-# def listen_print_loop(responses):
-#     num_chars_printed = 0
-#     for response in responses:
-#         if not response.results:
-#             continue
-#
-#         result = response.results[0]
-#         if not result.alternatives:
-#             continue
-#
-#         transcript = result.alternatives[0].transcript
-#
-#         if not result.is_final:
-#             new_chars = transcript[num_chars_printed:]
-#             print(new_chars, end='', flush=True)
-#             num_chars_printed = len(transcript)
-#         else:
-#             print(transcript + '\r', end='', flush=True)
-#             num_chars_printed = 0
-
-
-
-def main():
+def start_speech_recognition():
+    """Starts the speech recognition service."""
+    global is_listening, mic_stream
+    is_listening = True
     client = speech.SpeechClient()
-
     config = speech.RecognitionConfig(encoding=speech.RecognitionConfig.AudioEncoding.LINEAR16, sample_rate_hertz=RATE,
         language_code="en-US", max_alternatives=1, enable_automatic_punctuation=True)
-
     streaming_config = speech.StreamingRecognitionConfig(config=config, interim_results=True)
 
     with MicrophoneStream(RATE, CHUNK) as stream:
+        mic_stream = stream
         audio_generator = stream.generator()
         requests = (speech.StreamingRecognizeRequest(audio_content=content) for content in audio_generator)
-
         responses = client.streaming_recognize(streaming_config, requests)
 
         # Now, put the transcription responses to use.
         listen_print_loop(responses)
+
+
+def microphone_toggle():
+    global is_listening, mic_stream
+    if not is_listening:
+        is_listening = True
+        # Change button color to red
+        dpg.bind_item_theme("Toggle Microphone", "Red Button Theme")
+        threading.Thread(target=start_speech_recognition, daemon=True).start()
+    else:
+        is_listening = False
+        # Change button color to green
+        dpg.bind_item_theme("Toggle Microphone", "Green Button Theme")
+        if mic_stream is not None:
+            mic_stream.closed = True
+
+
+def build_gui():
+    dpg.create_context()
+
+    # Define button themes
+    with dpg.theme() as red_button_theme:
+        with dpg.theme_component(dpg.mvButton):
+            dpg.add_theme_color(dpg.mvThemeCol_Button, [255, 0, 0])
+
+    with dpg.theme() as green_button_theme:
+        with dpg.theme_component(dpg.mvButton):
+            dpg.add_theme_color(dpg.mvThemeCol_Button, [0, 255, 0])
+
+    with dpg.window(label="Transcript", autosize=True):
+        dpg.add_text("", tag="Transcript Text")
+        with dpg.group(horizontal=True):
+            dpg.add_button(label="Start Microphone", callback=microphone_toggle, tag="Toggle Microphone")
+
+    dpg.bind_item_theme("Toggle Microphone", "Green Button Theme")
+
+    dpg.create_viewport(title='Real-time Speech Recognition', width=800, height=600, resizable=True)
+    dpg.setup_dearpygui()
+    dpg.show_viewport()
+    dpg.start_dearpygui()
+    dpg.destroy_context()
+
+
+def main():
+    build_gui()
 
 
 if __name__ == '__main__':
