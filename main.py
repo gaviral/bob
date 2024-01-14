@@ -85,41 +85,16 @@ def listen_print_loop(responses):
         # Update partial transcript or replace it with the final transcript.
         if is_final:
             # Final response - replace the transcript with the punctuated version.
-            transcript = result.alternatives[0].transcript.rstrip()
+            transcript += result.alternatives[0].transcript.strip() + '\n'
             partial_transcript = ""
         else:
             # Partial response - update the partial transcript.
-            partial_transcript = result.alternatives[0].transcript.rstrip() + "..."
+            partial_transcript = result.alternatives[0].transcript.strip() + "..."
 
         # Update the DearPyGUI transcript box with the latest transcript.
         if dpg.is_dearpygui_running():
             current_transcript = transcript + ' ' + partial_transcript
-            dpg.set_value("transcript_text", current_transcript)  # Assuming 'transcript_text' is the identifier for the text widget.def listen_print_loop(responses):
-    """Iterates through server responses and prints them to the text widget."""
-    for response in responses:
-        if not response.results:
-            continue
-
-        result = response.results[0]
-        if not result.alternatives:
-            continue
-
-        # Check if the result is final.
-        is_final = result.is_final
-
-        # If the result is final, append it to the transcript and start a new line.
-        if is_final:
-            transcript += result.alternatives[0].transcript.rstrip() + '\n'
-
-        # Update the DearPyGUI transcript box with the latest transcript.
-        if dpg.is_dearpygui_running():
-            dpg.set_value("transcript_text", transcript)  # Update the text widget with the new transcript.
-
-
-
-# In your GUI building function, add an identifier to the text widget:
-# dpg.add_text("", tag="transcript_text", parent="Chat", before="mic_button")
-
+            dpg.set_value("transcript_text", current_transcript)
 
 
 def start_speech_recognition():
@@ -197,3 +172,8 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+
+# TODO:
+# - [ ] app window to show up in the right half of the screen
+# - [ ]
