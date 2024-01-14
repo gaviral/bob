@@ -70,6 +70,7 @@ class MicrophoneStream:
 def listen_print_loop(responses):
     """Iterates through server responses and prints them to the text widget."""
     global transcript
+    partial_transcript = ""
     for response in responses:
         if not response.results:
             continue
@@ -78,12 +79,47 @@ def listen_print_loop(responses):
         if not result.alternatives:
             continue
 
-        # Update the transcript variable with the latest result.
-        transcript = result.alternatives[0].transcript.rstrip() + ('' if result.is_final else '...')
+        # Check if the result is final.
+        is_final = result.is_final
+
+        # Update partial transcript or replace it with the final transcript.
+        if is_final:
+            # Final response - replace the transcript with the punctuated version.
+            transcript = result.alternatives[0].transcript.rstrip()
+            partial_transcript = ""
+        else:
+            # Partial response - update the partial transcript.
+            partial_transcript = result.alternatives[0].transcript.rstrip() + "..."
 
         # Update the DearPyGUI transcript box with the latest transcript.
         if dpg.is_dearpygui_running():
-            dpg.add_text(transcript, parent="Chat", before="mic_button")
+            current_transcript = transcript + ' ' + partial_transcript
+            dpg.set_value("transcript_text", current_transcript)  # Assuming 'transcript_text' is the identifier for the text widget.def listen_print_loop(responses):
+    """Iterates through server responses and prints them to the text widget."""
+    for response in responses:
+        if not response.results:
+            continue
+
+        result = response.results[0]
+        if not result.alternatives:
+            continue
+
+        # Check if the result is final.
+        is_final = result.is_final
+
+        # If the result is final, append it to the transcript and start a new line.
+        if is_final:
+            transcript += result.alternatives[0].transcript.rstrip() + '\n'
+
+        # Update the DearPyGUI transcript box with the latest transcript.
+        if dpg.is_dearpygui_running():
+            dpg.set_value("transcript_text", transcript)  # Update the text widget with the new transcript.
+
+
+
+# In your GUI building function, add an identifier to the text widget:
+# dpg.add_text("", tag="transcript_text", parent="Chat", before="mic_button")
+
 
 
 def start_speech_recognition():
@@ -146,6 +182,7 @@ def build_gui():
     with dpg.window(label="Chat", pos=(700, 425), width=320, height=800):
         button = dpg.add_button(label="Toggle Microphone", tag="mic_button", callback=toggle_mic)
         dpg.bind_item_theme(button, red_theme)  # Initial theme
+        dpg.add_text("", tag="transcript_text", parent="Chat", before="mic_button")
 
     dpg.create_viewport(title='Bob', width=960, height=1080)
     dpg.setup_dearpygui()
