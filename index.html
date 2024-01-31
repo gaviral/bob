@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Map</title>
+    <style>
+        svg.markmap {
+            width: 100%;
+            height: 100vh;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/markmap-autoloader@0.15.2"></script>
+</head>
+
+<body>
+    <div class="markmap">
+        <script type="text/template">
+        ---
+        markmap:
+            maxWidth: 300
+            colorFreezeLevel: 2
+        ---
+        - **Bob**
+            - **Frontend**
+                - **HTML**
+                    - **Code**: [html]
+                    - **Deployed**: [html-deployed]
+                    - **Features**: infinite (zoom + pan), ltor tree structure
+                    - **SDK/Libraries**: markmap-html
+                - **React**
+                    - **Code**: [react]
+                    - **Deployed**: [react-deployed]
+                    - **Features**: infinite (zoom + pan), ltor tree structure
+                    - **SDK/Libraries**: markmap-react
+                    - **Deprecated**
+                        - React 2 
+                            - **Code**: [react-2]
+                            - **Deployed**: [react-2-deployed]
+                            - **Features**: components, infinite (zoom + pan)
+                - **Python**
+                    - **Code**: [python]
+                    - **Features**: real-time speech to text, chat-GUI, enabled for markmap-like capabilties
+                    - **SDK/Libraries**: GCP, DearPyGui
+                    - **Deprecated**
+                        - Python 2
+                            - **Code**: [python-2]
+                            - **Features**: real-time speech to text, chat-GUI
+                            - **SDK/Libraries**: GCP, DearPyGui
+                        - Python 3
+                            - **Code**: [python-3]
+                            - **Features**: real-time speech to text, chat-GUI
+                            - **SDK/Libraries**: GCP, DearPyGui
+                        - Python 4
+                            - **Code**: [python-4]
+                            - **Features**: real-time speech to text, chat-GUI
+                            - **SDK/Libraries**: GCP, DearPyGui
+                - **Go**
+                    - **Code**: [go]
+                    - **Features**: OpenAI API calls
+                    - **SDK/Libraries**: OpenAI
+                - **macOS**
+                    - **Code**: [macOS]
+                    - **Features**: infinite (zoom, pan), OpenAI API calls
+                    - **SDK/Libraries**: OpenAI
+                - **Apple Multi-Platform**
+                    - **Code**: [apple-multi-platform]
+                    - **Features**: infinite (zoom, pan)
+                - **ChatGPT**
+                    - **Code**: [ChatGPT]
+                    - **Deployed**: [ChatGPT-deployed]
+                    - **Features**: intelligent backend endpoint selection for fetching data
+                    - **SDK/Libraries**: OpenAI
+            - **Backend**
+                - **Lambda + DDB**
+                    - **Code**: [lambda+ddb]
+                    - **Deployed**: [lambda+ddb-aws]
+                    - **Deprecated**
+                        - JSON Server (local)
+                            - **Code**: [json-server]
+                            - **Deployed**: [json-server-vercel]
+                        - JSON Server 2 (local)
+                            - **Code**: [json-server-2]
+                            - **Deployed**: [json-server-2-vercel]
+        
+        [Project Structure Visualization]: https://gaviral.github.io/bob
+        [html]: https://github.com/gaviral/map
+        [html-deployed]: https://gaviral.github.io/map
+        [react]: ...
+        [react-deployed]: ...
+        [react-2]: https://github.com/gaviral/dimag/tree/main
+        [react-2-deployed]: https://verdant-sherbet-e33230.netlify.app/
+        [python]: https://github.com/gaviral/bob
+        [python-2]: https://github.com/gaviral/macpy
+        [python-3]: https://github.com/gaviral/paperpy
+        [python-4]: https://github.com/gaviral/Kiara-python
+        [go]: https://github.com/gaviral/macgo
+        [macOS]: https://github.com/gaviral/paper
+        [lambda+ddb]: https://github.com/gaviral/bob/blob/main/aws_lambda/bob-lambda.py
+        [lambda+ddb-aws]: https://5qqkwmbjuf.execute-api.us-east-1.amazonaws.com/default/bobLambdaFunction
+        [json-server]: https://github.com/gaviral/json-server
+        [json-server-vercel]: https://json-server-smoky-tau.vercel.app
+        [json-server-2]: https://github.com/gaviral/dimag-back
+        [json-server-2-vercel]: https://dimag-back.vercel.app/
+    </script>
+    </div>
+</body>
+
+</html>
