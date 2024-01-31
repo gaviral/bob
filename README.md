@@ -26,7 +26,7 @@
 | [json-server] (local) deprecated   | [json-server-vercel]   |
 | [json-server-2] (local) deprecated | [json-server-2-vercel] |
 
-[Project Structure Visualization]: https://gaviral.github.io/bob
+[Project Structure Visualization]: https://gaviral.github.io/bob/
 [html]: https://github.com/gaviral/map
 [html-deployed]: https://gaviral.github.io/map
 [react]: ...
