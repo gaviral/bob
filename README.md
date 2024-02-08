@@ -4,6 +4,7 @@
 
 ## Frontend
 
+<!--
 | Code                   | Deployed           | Features                                                                                                 | SDK/Libraries                                               |
 | ---------------------- | ------------------ | -------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------- |
 | [html]                 | [html-deployed]    | infinite (zoom + pan)<br>- ltor tree structure                                                           | markmap-html                                                |
@@ -25,8 +26,70 @@
 | [lambda+ddb] (local)               | [lambda+ddb-aws]       |
 | [json-server] (local) deprecated   | [json-server-vercel]   |
 | [json-server-2] (local) deprecated | [json-server-2-vercel] |
+ -->
 
-[Project Structure Visualization]: https://gaviral.github.io/bob/
+-   Frontend
+    -   Active
+        -   HTML
+            -   **Code**: [html]
+            -   **Deployed**: [html-deployed]
+            -   **Features**: infinite (zoom + pan), ltor tree structure
+            -   **SDK/Libraries**: markmap-html
+        -   React
+            -   **Code**: [react]
+            -   **Deployed**: [react-deployed]
+            -   **Features**: infinite (zoom + pan), ltor tree structure
+            -   **SDK/Libraries**: markmap-react
+        -   Python
+            -   **Code**: [python]
+            -   **Features**: real-time speech to text, chat-GUI, enabled for markmap-like capabilties
+            -   **SDK/Libraries**: GCP, DearPyGui
+        -   Go
+            -   **Code**: [go]
+            -   **Features**: OpenAI API calls
+            -   **SDK/Libraries**: OpenAI
+        -   macOS
+            -   **Code**: [macOS]
+            -   **Features**: infinite (zoom, pan), OpenAI API calls
+            -   **SDK/Libraries**: OpenAI
+        -   Apple Multi-Platform
+            -   **Code**: [apple-multi-platform]
+            -   **Features**: infinite (zoom, pan)
+        -   ChatGPT
+            -   **Code**: [ChatGPT]
+            -   **Deployed**: [ChatGPT-deployed]
+            -   **Features**: intelligent backend endpoint selection for fetching data
+            -   **SDK/Libraries**: OpenAI
+    -   Deprecated
+        -   React 2
+            -   **Code**: [react-2]
+            -   **Deployed**: [react-2-deployed]
+            -   **Features**: components, infinite (zoom + pan)
+        -   Python 2
+            -   **Code**: [python-2]
+            -   **Features**: logging, OOP
+            -   **SDK/Libraries**: DearPyGui
+        -   Python 3
+            -   **Code**: [python-3]
+            -   **Features**: folder-structuring
+        -   Python 4
+            -   **Code**: [python-4]
+            -   **Features**: speech to text, vscode commands, google search, Custom-Mini-Scripts ( say "leetCode 112" )
+            -   **SDK/Libraries**: GoogleSpeech, playsound, pyAutoGUI, pyperclip
+-   Backend
+    -   Active
+        -   Lambda + DDB
+            -   **Code**: [lambda+ddb]
+            -   **Deployed**: [lambda+ddb-aws]
+    -   Deprecated
+        -   JSON Server (local)
+            -   **Code**: [json-server]
+            -   **Deployed**: [json-server-vercel]
+        -   JSON Server 2 (local)
+            -   **Code**: [json-server-2]
+            -   **Deployed**: [json-server-2-vercel]
+
+[Project Structure Visualization]: https://gaviral.github.io/bob
 [html]: https://github.com/gaviral/map
 [html-deployed]: https://gaviral.github.io/map
 [react]: ...
